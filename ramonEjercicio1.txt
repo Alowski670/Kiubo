@@ -1,0 +1,100 @@
+
+influenza <- read.csv("H1N1HVPPI.txt", sep="\t")
+SARS <- read.csv("SARS2HVPPI.txt", sep="\t")
+dim(SARS)
+dim(influenza)
+class(SARS)
+library(igraph)
+influenzaRED <- graph_from_data_frame(influenza)  
+influenzaRED
+
+SARS_RED <- graph_from_data_frame(SARS)
+SARS_RED
+
+plot(degree.distribution(inlfuenzaRED)) 
+plot(degree.distribution(SARS_RED))
+# Como podemos ver aqui, en la imagen que se ploteo, ambas redes tienen muchos nodos que tienen pocas conexiones
+# y pocos tienen muchas.
+SARSORDENADOS <- order(degree(SARS_RED), decreasing = TRUE)
+proteinasSARS <- head(SARSORDENADOS)
+todasSARS <- V(SARS_RED)
+todasSARS[proteinasSARS]
+
+INFLUENZAORDENADOS <- order(degree(influenzaRED), decreasing = TRUE)
+proteinasInfluenza <- head(INFLUENZAORDENADOS)
+todasInfluenza <- V(influenzaRED)
+todasInfluenza[proteinasInfluenza]
+### Aqui podemos ver que los nodos mas importantes de ambas redes son diferentes
+
+SARS_RED
+influenzaRED
+# Imprimiendolas pude ver que que ambas redes son dirigidas y no pesadas (DN)
+
+EdgeBetweenSARS <- cluster_edge_betweenness(SARS_RED, weights = E(SARS_RED)$weight)
+plot(SARS_RED, vertex.color= EdgeBetweenSARS$membership)
+
+WalktrapSARS <- cluster_walktrap(SARS_RED, weights = E(SARS_RED)$weight)
+plot(SARS_RED, vertex.color= WalktrapSARS$membership)
+
+LabelPropSARS <- cluster_label_prop(SARS_RED,weights = E(SARS_RED)$weight)
+plot(SARS_RED, vertex.color = LabelPropSARS$membership)
+
+
+EdgeBetweenInfluenza <- cluster_edge_betweenness(SARS_RED, weights = E(SARS_RED)$weight)
+plot(SARS_RED, vertex.color= EdgeBetweenInfluenza$membership)
+
+WalktrapInfluenza <- cluster_walktrap(SARS_RED, weights = E(SARS_RED)$weight)
+plot(SARS_RED, vertex.color= WalktrapInfluenza$membership)
+
+LabelPropInfluenza <- cluster_label_prop(SARS_RED,weights = E(SARS_RED)$weight)
+plot(SARS_RED, vertex.color = LabelPropInfluenza$membership)
+
+
+SARS_RED
+influenzaRED
+
+# REDSARS  diámetros, el coeficiente de clusterización,densidad  y robustez 
+diameter(SARS_RED)
+DegreeSARS <- degree(SARS_RED)
+DegreeSARS2 <- sum(DegreeSARS)
+nodosSARS <- length(SARS_RED) 
+densidadSARS <-  DegreeSARS2/(nodosSARS*(nodosSARS-1))
+importantes <- todasSARS[proteinasSARS]
+importantes <- as.numeric(importantes)
+promedioSARS <- mean_distance(SARS_RED)
+promedioSARS
+promedioSARS2 <- delete.vertices(SARS_RED, c(importantes))
+promedioDelete <- mean_distance(promedioSARS2)
+promedioDelete
+# La distancia promedio no cambio a pesar de remover los vertices mas importantes, por lo que podemos decir que la red es robusta
+
+# RED influenza  diámetros, el coeficiente de clusterización,densidad  y robustez 
+diameter(influenzaRED)
+Degreeinfluenza <- degree(influenzaRED)
+Degreeinfluenza2 <- sum(Degreeinfluenza)
+nodosInfluenza <- length(influenzaRED) 
+densidadInfluenza <-  Degreeinfluenza2/(nodosInfuelnza*(nodosInfluenza-1))
+importantes2 <- todasInfluenza[proteinasInfluenza]
+importantes2 <- as.numeric(importantes2)
+promedioInfluenza <- mean_distance(influenzaRED)
+promedioInfluenza2 <- delete.vertices(influenzaRED, c(importantes2))
+promedioDelete2 <- mean_distance(promedioInfluenza2)
+promedioDelete2
+
+componentes <- function(Red){
+comp <- components(Red)
+comp[2]
+
+ordenados <- order(degree(Red), decreasing = TRUE)
+ordenados2 <- head(ordenados)
+importantes <- V(ordenados2)
+importantes3 <- importantes2[proteinasSARS]
+importatnes3 <- as.numeric(importantes3)
+
+Menos10 <- delete.vertices(Red, c(importantes3))
+comp2 <- components(Menos10)
+comp2[2]
+
+print(comp[2])
+print(comp2[2])
+}
